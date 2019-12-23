@@ -75,7 +75,7 @@ namespace DeltaPlan2100API.Controllers
                 return null;
         }
 
-        // GET: api/Component/GetComLevelThree/5
+        // GET: api/Component/GetComLevelThree/5 
         [HttpGet("{id}", Name = "GetComLevelThree")]
         public IEnumerable<TblComponentLevel3> GetComLevelThree(int id)
         {
