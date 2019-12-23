@@ -19,7 +19,7 @@ namespace DeltaPlan2100API.Controllers
         [HttpGet]
         public IEnumerable<TblComponentLevel1> GetComLevelOne()
         {
-            var comLevelOneList = db.TblComponentLevel1.Where(w => w.IsActive == true).OrderBy(o => o.ComponentName).ToList();
+            var comLevelOneList = db.TblComponentLevel1.Where(w => w.IsActive == true).ToList();
             return comLevelOneList;
         }
 
@@ -41,7 +41,7 @@ namespace DeltaPlan2100API.Controllers
         [HttpGet]
         public IEnumerable<TblComponentLevel2> GetComLevelTwo()
         {
-            var comLevelTwoList = db.TblComponentLevel2.Where(w => w.IsActive == true).OrderBy(o => o.ComponentName).ToList();
+            var comLevelTwoList = db.TblComponentLevel2.Where(w => w.IsActive == true).ToList();
 
             if (comLevelTwoList != null)
                 return comLevelTwoList;
@@ -53,7 +53,7 @@ namespace DeltaPlan2100API.Controllers
         [HttpGet("{id}", Name = "GetComLevelTwo")]
         public IEnumerable<TblComponentLevel2> GetComLevelTwo(int id)
         {
-            var comLevelTwoItem = db.TblComponentLevel2.Where(w => w.ParentId == id && w.IsActive == true).OrderBy(o => o.ComponentName).ToList();
+            var comLevelTwoItem = db.TblComponentLevel2.Where(w => w.ParentId == id && w.IsActive == true).ToList();
 
             if (comLevelTwoItem != null)
                 return comLevelTwoItem;
@@ -67,7 +67,7 @@ namespace DeltaPlan2100API.Controllers
         [HttpGet]
         public IEnumerable<TblComponentLevel3> GetComLevelThree()
         {
-            var comLevelThreeList = db.TblComponentLevel3.Where(w => w.IsActive == true).OrderBy(o => o.ComponentName).ToList();
+            var comLevelThreeList = db.TblComponentLevel3.Where(w => w.IsActive == true).ToList();
 
             if (comLevelThreeList != null)
                 return comLevelThreeList;
@@ -79,7 +79,7 @@ namespace DeltaPlan2100API.Controllers
         [HttpGet("{id}", Name = "GetComLevelThree")]
         public IEnumerable<TblComponentLevel3> GetComLevelThree(int id)
         {
-            var comLevelThreeItem = db.TblComponentLevel3.Where(w => w.ParentId == id && w.IsActive == true).OrderBy(o => o.ComponentName).ToList();
+            var comLevelThreeItem = db.TblComponentLevel3.Where(w => w.ParentId == id && w.IsActive == true).ToList();
 
             if (comLevelThreeItem != null)
                 return comLevelThreeItem;
