@@ -1,0 +1,33 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <br />
+
+    <div class="row">
+        <div class="col-4">
+            <ul class="list-group" style="text-align: left;">
+                <li class="list-group-item list-group-item-action active">
+                    <a class="nav-link text-dark" asp-area="" asp-controller="Component" asp-action="GetComLevelOne" target="_blank">List of Component Level One</a>
+                </li>
+                <li class="list-group-item list-group-item-action">                   
+                    @Html.ActionLink("Item of Component Level One", "GetComLevelOne", "Component", new {id = "1"}, null)
+                </li>
+                <li class="list-group-item list-group-item-action">
+                    <a class="nav-link text-dark" asp-area="" asp-controller="Component" asp-action="GetComLevelTwo" target="_blank">List of Component Level Two</a>                   
+                </li>
+                <li class="list-group-item list-group-item-action">                   
+                    @Html.ActionLink("Item(s) of Component Level Two", "GetComLevelTwo", "Component", new {id = "1"}, null)
+                </li>
+                <li class="list-group-item list-group-item-action">
+                    <a class="nav-link text-dark" asp-area="" asp-controller="Component" asp-action="GetComLevelThree" target="_blank">List of Component Level Three</a>
+                </li>
+                <li class="list-group-item list-group-item-action">                   
+                    @Html.ActionLink("Item(s) of Component Level Three", "GetComLevelThree", "Component", new {id = "5"}, null)
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
