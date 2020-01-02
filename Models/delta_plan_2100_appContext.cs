@@ -31,7 +31,9 @@ namespace DeltaPlan2100API.Models
         {
             if (!optionsBuilder.IsConfigured)
             {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
+                //To protect potentially sensitive information in your connection string,  
+                //you should move it out of source code.See http://go.microsoft.com/fwlink/?LinkId=723263 
+                //for guidance on storing connection strings.
                 optionsBuilder.UseNpgsql("server=127.0.0.1;Port=5432;database=delta_plan_2100_app;User ID=postgres;password=cegis;");
             }
         }

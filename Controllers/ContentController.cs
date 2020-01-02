@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 using DeltaPlan2100API.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using DeltaPlan2100API.Helper;
+using System.Data.Common;
 
 namespace DeltaPlan2100API.Controllers
 {
@@ -71,5 +74,75 @@ namespace DeltaPlan2100API.Controllers
             return lstMacroEconIndicator;
         }
 
+        // GET: api/Content/GetMacroEconIndicator/1/2/1
+        [Obsolete]
+        [HttpGet("{indicator_name}", Name = "MacroEconIndicatorPivotData")]
+        public List<MacroEconIndicatorsPivotList> MacroEconIndicatorPivotData(string indicator_name)
+        {
+            List<MacroEconIndicatorsPivotList> lstMEIPL = new List<MacroEconIndicatorsPivotList>();
+
+            string dataQuery = @"SELECT 
+	                                indicator_name,
+	                                CASE WHEN indicator_type = 1 THEN 'BAU' ELSE 'BDP' END indicator_type,
+	                                MAX(fy_value) FILTER (WHERE fiscal_year = 2016) AS FY2016,
+                                    MAX(fy_value) FILTER (WHERE fiscal_year = 2020) AS FY2020,
+	                                MAX(fy_value) FILTER (WHERE fiscal_year = 2021) AS FY2021,
+	                                MAX(fy_value) FILTER (WHERE fiscal_year = 2025) AS FY2025,
+	                                MAX(fy_value) FILTER (WHERE fiscal_year = 2026) AS FY2026,
+	                                MAX(fy_value) FILTER (WHERE fiscal_year = 2030) AS FY2030,
+	                                MAX(fy_value) FILTER (WHERE fiscal_year = 2031) AS FY2031,
+	                                MAX(fy_value) FILTER (WHERE fiscal_year = 2035) AS FY2035,
+	                                MAX(fy_value) FILTER (WHERE fiscal_year = 2036) AS FY2036,
+	                                MAX(fy_value) FILTER (WHERE fiscal_year = 2040) AS FY2040,
+                                    MAX(fy_value) FILTER (WHERE fiscal_year = 2041) AS FY2041
+                                FROM public.tbl_indicator_fy_data 
+                                --WHERE indicator_name = 'ICOR'
+                                GROUP BY indicator_name, indicator_type
+                                ORDER BY indicator_name, indicator_type;";
+
+            try
+            {
+                using DbCommand command = db.Database.GetDbConnection().CreateCommand();
+                command.CommandText = dataQuery;
+                db.Database.OpenConnection();
+
+                using DbDataReader result = command.ExecuteReader();
+                while (result.Read())
+                {
+                    MacroEconIndicatorsPivotList _mei = new MacroEconIndicatorsPivotList
+                    {
+                        indicator_name = result[0].ToString(),
+                        indicator_type = result[1].ToString(),
+                        FY2016 = result[2].ToString().ToDecimal(),
+                        FY2020 = result[3].ToString().ToDecimal(),
+                        FY2021 = result[4].ToString().ToDecimal(),
+                        FY2025 = result[5].ToString().ToDecimal(),
+                        FY2026 = result[6].ToString().ToDecimal(),
+                        FY2030 = result[7].ToString().ToDecimal(),
+                        FY2031 = result[8].ToString().ToDecimal(),
+                        FY2035 = result[9].ToString().ToDecimal(),
+                        FY2036 = result[10].ToString().ToDecimal(),
+                        FY2040 = result[11].ToString().ToDecimal(),
+                        FY2041 = result[12].ToString().ToDecimal()
+                    };
+
+                    lstMEIPL.Add(_mei);
+                }
+            }
+            catch (Exception ex)
+            {
+                lstMEIPL = new List<MacroEconIndicatorsPivotList>();
+
+                MacroEconIndicatorsPivotList _mei_ex = new MacroEconIndicatorsPivotList
+                {
+                    indicator_name = "error_occured",
+                    error = ex.Message
+                };
+
+                lstMEIPL.Add(_mei_ex);
+            }
+
+            return lstMEIPL;
+        }
     }
 }
