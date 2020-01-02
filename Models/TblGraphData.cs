@@ -13,5 +13,6 @@ namespace DeltaPlan2100API.Models
         public string Remarks { get; set; }
         public bool? IsActive { get; set; }
         public bool? IsDelete { get; set; }
+        public decimal? DtValue { get; set; }
     }
 }

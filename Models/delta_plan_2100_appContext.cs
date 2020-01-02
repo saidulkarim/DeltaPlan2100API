@@ -1,7 +1,6 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.Extensions.Configuration;
 
 namespace DeltaPlan2100API.Models
 {
@@ -23,17 +22,17 @@ namespace DeltaPlan2100API.Models
         public virtual DbSet<TblComponentLevel3> TblComponentLevel3 { get; set; }
         public virtual DbSet<TblDeltaMetaData> TblDeltaMetaData { get; set; }
         public virtual DbSet<TblGraphData> TblGraphData { get; set; }
+        public virtual DbSet<TblIndicatorFyData> TblIndicatorFyData { get; set; }
         public virtual DbSet<TblTabularData> TblTabularData { get; set; }
         public virtual DbSet<TblUserComments> TblUserComments { get; set; }
         public virtual DbSet<Upazilla> Upazilla { get; set; }
-        //public IConfiguration Configuration { get; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
             {
-                _ = optionsBuilder.UseNpgsql("host=127.0.0.1;port=5432;database=delta_plan_2100_app;user id=postgres;password=cegis;");
-                //_ = optionsBuilder.UseNpgsql(Configuration.GetConnectionString("DefaultConnectionString"));
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
+                optionsBuilder.UseNpgsql("server=127.0.0.1;Port=5432;database=delta_plan_2100_app;User ID=postgres;password=cegis;");
             }
         }
 
@@ -86,6 +85,8 @@ namespace DeltaPlan2100API.Models
 
                 entity.ToTable("tbl_component_level_1");
 
+                entity.HasComment("Thematic group list");
+
                 entity.Property(e => e.ComponentLevel1Id).HasColumnName("component_level_1_id");
 
                 entity.Property(e => e.ComponentName)
@@ -108,6 +109,8 @@ namespace DeltaPlan2100API.Models
                 entity.HasKey(e => e.ComponentLevel2Id);
 
                 entity.ToTable("tbl_component_level_2");
+
+                entity.HasComment("Thematic type");
 
                 entity.Property(e => e.ComponentLevel2Id).HasColumnName("component_level_2_id");
 
@@ -132,6 +135,8 @@ namespace DeltaPlan2100API.Models
                 entity.HasKey(e => e.ComponentLevel3Id);
 
                 entity.ToTable("tbl_component_level_3");
+
+                entity.HasComment("Thematic layers");
 
                 entity.Property(e => e.ComponentLevel3Id).HasColumnName("component_level_3_id");
 
@@ -280,6 +285,10 @@ namespace DeltaPlan2100API.Models
 
                 entity.Property(e => e.DtMonth).HasColumnName("dt_month");
 
+                entity.Property(e => e.DtValue)
+                    .HasColumnName("dt_value")
+                    .HasColumnType("numeric");
+
                 entity.Property(e => e.DtYear).HasColumnName("dt_year");
 
                 entity.Property(e => e.IsActive).HasColumnName("is_active");
@@ -296,6 +305,45 @@ namespace DeltaPlan2100API.Models
                     .IsFixedLength();
             });
 
+            modelBuilder.Entity<TblIndicatorFyData>(entity =>
+            {
+                entity.HasKey(e => e.IndicatorAutoId)
+                    .HasName("tbl_indicator_fy_data_pkey");
+
+                entity.ToTable("tbl_indicator_fy_data");
+
+                entity.HasComment("Indicators BAU Policy and BDP Policy Data");
+
+                entity.Property(e => e.IndicatorAutoId).HasColumnName("indicator_auto_id");
+
+                entity.Property(e => e.FiscalYear).HasColumnName("fiscal_year");
+
+                entity.Property(e => e.FyValue)
+                    .HasColumnName("fy_value")
+                    .HasColumnType("numeric(8,2)");
+
+                entity.Property(e => e.FyValueUnit)
+                    .HasColumnName("fy_value_unit")
+                    .HasMaxLength(25)
+                    .IsFixedLength();
+
+                entity.Property(e => e.IndicatorName)
+                    .HasColumnName("indicator_name")
+                    .HasMaxLength(150);
+
+                entity.Property(e => e.IndicatorType)
+                    .HasColumnName("indicator_type")
+                    .HasComment("1 = BAU; 2 = BDP;");
+
+                entity.Property(e => e.IsActive).HasColumnName("is_active");
+
+                entity.Property(e => e.IsDelete).HasColumnName("is_delete");
+
+                entity.Property(e => e.ParentId).HasColumnName("parent_id");
+
+                entity.Property(e => e.ParentLevel).HasColumnName("parent_level");
+            });
+
             modelBuilder.Entity<TblTabularData>(entity =>
             {
                 entity.HasKey(e => e.TabularDataId)
@@ -305,19 +353,13 @@ namespace DeltaPlan2100API.Models
 
                 entity.Property(e => e.TabularDataId).HasColumnName("tabular_data_id");
 
+                entity.Property(e => e.Contents)
+                    .HasColumnName("contents")
+                    .HasMaxLength(5000);
+
                 entity.Property(e => e.IsActive).HasColumnName("is_active");
 
                 entity.Property(e => e.IsDelete).HasColumnName("is_delete");
-
-                entity.Property(e => e.ParameterName)
-                    .HasColumnName("parameter_name")
-                    .HasMaxLength(250)
-                    .IsFixedLength();
-
-                entity.Property(e => e.ParameterValue)
-                    .HasColumnName("parameter_value")
-                    .HasMaxLength(500)
-                    .IsFixedLength();
 
                 entity.Property(e => e.ParentId).HasColumnName("parent_id");
 
@@ -375,6 +417,8 @@ namespace DeltaPlan2100API.Models
             modelBuilder.HasSequence("division_division_id_seq");
 
             modelBuilder.HasSequence("tbl_component_level_1_component_level_1_id_seq");
+
+            modelBuilder.HasSequence("tbl_tabular_data_tabular_data_id_seq");
 
             modelBuilder.HasSequence("upazilla_upazilla_id_seq");
 
