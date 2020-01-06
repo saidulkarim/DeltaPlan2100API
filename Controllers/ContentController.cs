@@ -74,7 +74,29 @@ namespace DeltaPlan2100API.Controllers
             return lstMacroEconIndicator;
         }
 
-        // GET: api/Content/GetMacroEconIndicator/1/2/1
+        // GET: api/Content/GetFiscalYearList/
+        [HttpGet(Name = "GetFiscalYearList")]
+        public List<string> GetFiscalYearList()
+        {
+            List<string> lstYear = new List<string>();
+
+            try
+            {
+                lstYear = db.TblIndicatorFyData
+                            .Select(s => s.FiscalYear.ToString())
+                            .Distinct()
+                            .OrderBy(o => o)
+                            .ToList();
+            }
+            catch (Exception ex)
+            {
+                lstYear = new List<string>();
+            }
+
+            return lstYear;
+        }
+
+        // GET: api/Content/MacroEconIndicatorPivotData/ICOR
         [Obsolete]
         [HttpGet("{indicator_name}", Name = "MacroEconIndicatorPivotData")]
         public List<MacroEconIndicatorsPivotList> MacroEconIndicatorPivotData(string indicator_name)
@@ -96,9 +118,15 @@ namespace DeltaPlan2100API.Controllers
 	                                MAX(fy_value) FILTER (WHERE fiscal_year = 2040) AS FY2040,
                                     MAX(fy_value) FILTER (WHERE fiscal_year = 2041) AS FY2041
                                 FROM public.tbl_indicator_fy_data 
-                                --WHERE indicator_name = 'ICOR'
-                                GROUP BY indicator_name, indicator_type
-                                ORDER BY indicator_name, indicator_type;";
+                                WHERE 1 = 1";
+
+            if (!string.IsNullOrEmpty(indicator_name))
+            {
+                dataQuery += " AND indicator_name = '" + indicator_name + "'";
+            }
+
+            dataQuery += @" GROUP BY indicator_name, indicator_type
+                            ORDER BY indicator_name, indicator_type;";
 
             try
             {
