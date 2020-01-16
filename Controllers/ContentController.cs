@@ -107,6 +107,7 @@ namespace DeltaPlan2100API.Controllers
             string dataQuery = @"SELECT 
 	                                indicator_name,
 	                                CASE WHEN indicator_type = 1 THEN 'BAU' ELSE 'BDP' END indicator_type,
+                                    fy_value_unit,
 	                                MAX(fy_value) FILTER (WHERE fiscal_year = 2016) AS FY2016,
                                     MAX(fy_value) FILTER (WHERE fiscal_year = 2020) AS FY2020,
 	                                MAX(fy_value) FILTER (WHERE fiscal_year = 2021) AS FY2021,
@@ -126,7 +127,7 @@ namespace DeltaPlan2100API.Controllers
                 dataQuery += " AND indicator_name = '" + indicator_name + "'";
             }
 
-            dataQuery += @" GROUP BY indicator_name, indicator_type
+            dataQuery += @" GROUP BY indicator_name, indicator_type, fy_value_unit
                             ORDER BY indicator_name, indicator_type;";
 
             try
@@ -142,17 +143,18 @@ namespace DeltaPlan2100API.Controllers
                     {
                         indicator_name = result[0].ToString(),
                         indicator_type = result[1].ToString(),
-                        FY2016 = result[2].ToString().ToDecimal(),
-                        FY2020 = result[3].ToString().ToDecimal(),
-                        FY2021 = result[4].ToString().ToDecimal(),
-                        FY2025 = result[5].ToString().ToDecimal(),
-                        FY2026 = result[6].ToString().ToDecimal(),
-                        FY2030 = result[7].ToString().ToDecimal(),
-                        FY2031 = result[8].ToString().ToDecimal(),
-                        FY2035 = result[9].ToString().ToDecimal(),
-                        FY2036 = result[10].ToString().ToDecimal(),
-                        FY2040 = result[11].ToString().ToDecimal(),
-                        FY2041 = result[12].ToString().ToDecimal()
+                        fy_value_unit = result[2].ToString(),
+                        FY2016 = result[3].ToString().ToDecimal(),
+                        FY2020 = result[4].ToString().ToDecimal(),
+                        FY2021 = result[5].ToString().ToDecimal(),
+                        FY2025 = result[6].ToString().ToDecimal(),
+                        FY2026 = result[7].ToString().ToDecimal(),
+                        FY2030 = result[8].ToString().ToDecimal(),
+                        FY2031 = result[9].ToString().ToDecimal(),
+                        FY2035 = result[10].ToString().ToDecimal(),
+                        FY2036 = result[11].ToString().ToDecimal(),
+                        FY2040 = result[12].ToString().ToDecimal(),
+                        FY2041 = result[13].ToString().ToDecimal()
                     };
 
                     lstMEIPL.Add(_mei);

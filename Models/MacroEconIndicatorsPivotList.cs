@@ -10,6 +10,7 @@ namespace DeltaPlan2100API.Models
     {
         public string indicator_name { get; set; }
         public string indicator_type { get; set; }
+        public string fy_value_unit { get; set; }
 
         [RegularExpression(@"^\d+\.\d{0,2}$")]
         [Range(0, 99999999.99)]
