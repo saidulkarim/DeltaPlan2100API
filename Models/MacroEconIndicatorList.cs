@@ -10,5 +10,6 @@ namespace DeltaPlan2100API.Models
         //public int IndicatorAutoId { get; set; }
         public string IndicatorName { get; set; }
         public int? IndicatorType { get; set; }
+        public int? VisualOrder { get; set; }
     }
 }

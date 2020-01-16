@@ -60,10 +60,11 @@ namespace DeltaPlan2100API.Controllers
                                 {
                                     //IndicatorAutoId = x.IndicatorAutoId,
                                     IndicatorName = x.IndicatorName,
-                                    IndicatorType = x.IndicatorType
+                                    IndicatorType = x.IndicatorType,
+                                    VisualOrder = x.VisualOrder
                                 })
                                 .Distinct()
-                                .OrderBy(o => o.IndicatorName)
+                                .OrderBy(o => o.VisualOrder)
                                 .ToList();
             }
             catch (Exception ex)

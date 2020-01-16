@@ -344,6 +344,8 @@ namespace DeltaPlan2100API.Models
                 entity.Property(e => e.ParentId).HasColumnName("parent_id");
 
                 entity.Property(e => e.ParentLevel).HasColumnName("parent_level");
+
+                entity.Property(e => e.VisualOrder).HasColumnName("visual_order");
             });
 
             modelBuilder.Entity<TblTabularData>(entity =>
