@@ -175,5 +175,48 @@ namespace DeltaPlan2100API.Controllers
 
             return lstMEIPL;
         }
+
+        #region Send Feedback
+        // POST: api/Content/SendFeedback
+        [HttpPost]
+        public string SendFeedback(string user_name, string phone_no, string user_email, string user_comment)
+        {
+            string result = string.Empty;
+            TblUserComments tblUserComments = new TblUserComments();
+
+            try
+            {
+                if (!string.IsNullOrEmpty(user_name))
+                {
+                    tblUserComments.UserName = user_name;
+                    tblUserComments.UserPhone = phone_no;
+                    tblUserComments.UserEmailAddress = user_email;
+                    tblUserComments.UserComments = user_comment;
+
+                    if (tblUserComments != null)
+                    {
+                        db.TblUserComments.Add(tblUserComments);
+                        int x = db.SaveChanges();
+
+                        result = x > 0 ? "success" : "failed";
+                    }
+                    else
+                    {
+                        result = "failed";
+                    }
+                }
+                else
+                {
+                    result = "failed";
+                }
+            }
+            catch (Exception ex)
+            {
+                result = ex.Message;
+            }
+
+            return result;
+        }
+        #endregion
     }
 }

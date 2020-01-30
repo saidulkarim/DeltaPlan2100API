@@ -15,6 +15,6 @@ namespace DeltaPlan2100API.Models
         public int? IndicatorType { get; set; }
         public bool? IsActive { get; set; }
         public bool? IsDelete { get; set; }
-        public int? VisualOrder { get; set; }
+        public short? VisualOrder { get; set; }
     }
 }

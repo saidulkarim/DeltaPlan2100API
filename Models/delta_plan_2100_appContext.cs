@@ -31,10 +31,8 @@ namespace DeltaPlan2100API.Models
         {
             if (!optionsBuilder.IsConfigured)
             {
-                //To protect potentially sensitive information in your connection string,  
-                //you should move it out of source code.See http://go.microsoft.com/fwlink/?LinkId=723263 
-                //for guidance on storing connection strings.
-                optionsBuilder.UseNpgsql("server=127.0.0.1;Port=5432;database=delta_plan_2100_app;User ID=postgres;password=cegis;");
+                //optionsBuilder.UseNpgsql("server=127.0.0.1;Port=5432;database=delta_plan_2100_app;User ID=postgres;password=cegis;");
+                optionsBuilder.UseNpgsql("server=202.53.173.179;Port=5434;database=delta_plan_2100_app;User ID=dp2100_app_user;password=cegis@2020;");
             }
         }
 
@@ -326,8 +324,7 @@ namespace DeltaPlan2100API.Models
 
                 entity.Property(e => e.FyValueUnit)
                     .HasColumnName("fy_value_unit")
-                    .HasMaxLength(25)
-                    .IsFixedLength();
+                    .HasMaxLength(100);
 
                 entity.Property(e => e.IndicatorName)
                     .HasColumnName("indicator_name")
@@ -381,18 +378,19 @@ namespace DeltaPlan2100API.Models
 
                 entity.Property(e => e.UserComments)
                     .HasColumnName("user_comments")
-                    .HasMaxLength(500)
-                    .IsFixedLength();
+                    .HasMaxLength(500);
 
-                entity.Property(e => e.UserEmail)
-                    .HasColumnName("user_email")
-                    .HasMaxLength(150)
-                    .IsFixedLength();
+                entity.Property(e => e.UserEmailAddress)
+                    .HasColumnName("user_email_address")
+                    .HasMaxLength(50);
 
                 entity.Property(e => e.UserName)
                     .HasColumnName("user_name")
-                    .HasMaxLength(50)
-                    .IsFixedLength();
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.UserPhone)
+                    .HasColumnName("user_phone")
+                    .HasMaxLength(20);
             });
 
             modelBuilder.Entity<Upazilla>(entity =>
