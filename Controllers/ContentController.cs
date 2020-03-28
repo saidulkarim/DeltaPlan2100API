@@ -8,6 +8,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using DeltaPlan2100API.Helper;
 using System.Data.Common;
+using DeltaPlan2100API.Models.TempModels;
+using System.Drawing;
+using System.Globalization;
 
 namespace DeltaPlan2100API.Controllers
 {
@@ -174,6 +177,86 @@ namespace DeltaPlan2100API.Controllers
             }
 
             return lstMEIPL;
+        }
+
+        // GET: api/Content/InvestmentProjectList        
+        public List<InvestmentProjectList> InvestmentProjectList()
+        {
+            List<InvestmentProjectList> lstInvProj = new List<InvestmentProjectList>();
+
+            string dataQuery = @"SELECT distinct code, name
+	                             FROM public.map_investment_project
+	                             ORDER BY name;";
+
+            try
+            {
+                using DbCommand command = db.Database.GetDbConnection().CreateCommand();
+                command.CommandText = dataQuery;
+                db.Database.OpenConnection();
+
+                using DbDataReader result = command.ExecuteReader();
+                while (result.Read())
+                {
+                    InvestmentProjectList _mei = new InvestmentProjectList
+                    {
+                        Code = result[0].ToString(),
+                        Name = result[1].ToString()
+                    };
+
+                    lstInvProj.Add(_mei);
+                }
+            }
+            catch (Exception ex)
+            {
+                lstInvProj = new List<InvestmentProjectList>();
+
+                InvestmentProjectList _mei_ex = new InvestmentProjectList
+                {
+                    Code = "",
+                    Name = ex.Message
+                };
+
+                lstInvProj.Add(_mei_ex);
+            }
+
+            return lstInvProj;
+        }
+
+        // GET: api/Content/InvestmentProjectLayer/code
+        [HttpGet("{code}", Name = "InvestmentProjectLayer")]
+        public string InvestmentProjectLayer(string code)
+        {
+            string response = string.Empty;
+            string dataQuery = @"SELECT jsonb_build_object(
+                                    'type',     'FeatureCollection',
+                                    'features', jsonb_agg(feature)
+                                )
+                                FROM (
+                                  SELECT jsonb_build_object(
+                                    'type',       'Feature',                                    
+                                    'geometry',   ST_AsGeoJSON((shape), 15, 0)::jsonb,
+                                    'properties', to_jsonb(row) - 'shape_id' - 'shape'
+                                  ) AS feature 
+                                FROM (SELECT * FROM public.map_investment_project where code = '" + code + "') row) features;";
+
+            try
+            {
+                using DbCommand command = db.Database.GetDbConnection().CreateCommand();
+                command.CommandText = dataQuery;
+                db.Database.OpenConnection();
+                using DbDataReader result = command.ExecuteReader();
+
+                while (result.Read())
+                {
+                    response = result[0].ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                response = ex.Message;
+            }
+
+            return response;
         }
 
         #region Send Feedback
