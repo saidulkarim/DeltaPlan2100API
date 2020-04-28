@@ -1,0 +1,53 @@
+﻿@model IEnumerable<DeltaPlan2100API.Models.TblMapViewConfig>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.TableName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ColumnName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.AliasName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ViewSerial)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.TableName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ColumnName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.AliasName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ViewSerial)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.AutoId">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.AutoId">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.AutoId">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

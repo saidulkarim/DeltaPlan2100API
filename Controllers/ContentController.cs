@@ -179,14 +179,67 @@ namespace DeltaPlan2100API.Controllers
             return lstMEIPL;
         }
 
-        // GET: api/Content/InvestmentProjectList        
-        public List<InvestmentProjectList> InvestmentProjectList()
+        // GET: api/Content/InvestmentProjectHotspotList        
+        public List<InvestmentProjectList> InvestmentProjectHotspotList()
+        {
+            List<InvestmentProjectList> lstHotSpot = new List<InvestmentProjectList>();
+
+            string dataQuery = @"SELECT '' AS code, 'Choose...' AS name
+                                UNION ALL
+                                SELECT hotspot AS code, hotspot AS name FROM (
+	                                SELECT DISTINCT hotspot
+	                                FROM public.map_investment_project_info
+	                                WHERE hotspot IS NOT NULL AND hotspot != '' AND is_project_active = 1
+	                                ORDER BY hotspot ASC
+                                ) AS hotspot;";
+
+            try
+            {
+                using DbCommand command = db.Database.GetDbConnection().CreateCommand();
+                command.CommandText = dataQuery;
+                db.Database.OpenConnection();
+
+                using DbDataReader result = command.ExecuteReader();
+                while (result.Read())
+                {
+                    InvestmentProjectList _mei = new InvestmentProjectList
+                    {
+                        Code = result[0].ToString(),
+                        Name = result[1].ToString()
+                    };
+
+                    lstHotSpot.Add(_mei);
+                }
+            }
+            catch (Exception ex)
+            {
+                lstHotSpot = new List<InvestmentProjectList>();
+
+                InvestmentProjectList _mei_ex = new InvestmentProjectList
+                {
+                    Code = "",
+                    Name = ex.Message
+                };
+
+                lstHotSpot.Add(_mei_ex);
+            }
+
+            return lstHotSpot;
+        }
+
+        // GET: api/Content/InvestmentProjectList/hotspot
+        [HttpGet("{hotspot}", Name = "InvestmentProjectList")]
+        public List<InvestmentProjectList> InvestmentProjectList(string hotspot)
         {
             List<InvestmentProjectList> lstInvProj = new List<InvestmentProjectList>();
 
-            string dataQuery = @"SELECT distinct code, name
-	                             FROM public.map_investment_project
-	                             ORDER BY name;";
+            string dataQuery = @"SELECT '' AS code, 'Choose a project...' AS name
+                                 UNION ALL
+                                 SELECT distinct p.code, p.title
+                                 FROM public.map_investment_project p
+                                 INNER JOIN public.map_investment_project_info i ON p.code = i.project_code
+                                 WHERE i.hotspot = '" + hotspot + @"'
+                                 ORDER BY code;";
 
             try
             {
@@ -228,16 +281,29 @@ namespace DeltaPlan2100API.Controllers
         {
             string response = string.Empty;
             string dataQuery = @"SELECT jsonb_build_object(
-                                    'type',     'FeatureCollection',
-                                    'features', jsonb_agg(feature)
+	                                'type',     'FeatureCollection',
+	                                'features', jsonb_agg(feature)
                                 )
                                 FROM (
                                   SELECT jsonb_build_object(
-                                    'type',       'Feature',                                    
-                                    'geometry',   ST_AsGeoJSON((shape), 15, 0)::jsonb,
-                                    'properties', to_jsonb(row) - 'shape_id' - 'shape'
+	                                'type', 'Feature',                                    
+	                                'geometry', ST_AsGeoJSON((shape), 15, 0)::jsonb,
+	                                'properties', to_jsonb(row) - 'shape'
                                   ) AS feature 
-                                FROM (SELECT * FROM public.map_investment_project where code = '" + code + "') row) features;";
+                                FROM (
+	                                SELECT p.code AS ""1. Code"", 
+                                    p.title AS ""2. Title"", 
+	                                i.project_objectives AS ""3. Objectives"", 
+	                                i.duration AS ""4. Duration"", 
+	                                i.estimated_cost AS ""5. Estimated Cost"", 
+	                                i.responsible_ministry AS ""6. Responsible Ministry"", 
+	                                i.executing_agency AS ""7. Executing Agency"", 
+	                                p.remarks AS ""8. Remarks"", 
+	                                p.shape
+                                    FROM public.map_investment_project p
+                                    LEFT JOIN public.map_investment_project_info i ON p.code = i.project_code
+                                    WHERE p.code = '" + code + "' " + @"
+                                ) row) features; ";
 
             try
             {
@@ -249,6 +315,115 @@ namespace DeltaPlan2100API.Controllers
                 while (result.Read())
                 {
                     response = result[0].ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                response = ex.Message;
+            }
+
+            return response;
+        }
+
+        // GET: api/Content/BwdbProjectLayer
+        //[HttpGet("{code}", Name = "BwdbProjectLayer")]
+        public string BwdbProjectLayer()
+        {
+            string response = string.Empty;
+            string dataQuery = @"SELECT jsonb_build_object(
+	                                'type',     'FeatureCollection',
+	                                'features', jsonb_agg(feature)
+                                )
+                                FROM (
+                                  SELECT jsonb_build_object(
+	                                'type', 'Feature',                                    
+	                                'geometry', ST_AsGeoJSON((shape), 15, 0)::jsonb,
+	                                'properties', to_jsonb(row) - 'shape'
+                                  ) AS feature 
+                                FROM (" + Environment.NewLine + GenerateMapViewColumns("map_bwdb_project") + Environment.NewLine + ") row) features;";
+
+            try
+            {
+                using DbCommand command = db.Database.GetDbConnection().CreateCommand();
+                command.CommandText = dataQuery;
+                db.Database.OpenConnection();
+                using DbDataReader result = command.ExecuteReader();
+
+                while (result.Read())
+                {
+                    response = result[0].ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                response = ex.Message;
+            }
+
+            return response;
+        }
+
+        // GET: api/Content/LgedProjectLayer
+        //[HttpGet("{code}", Name = "LgedProjectLayer")]
+        public string LgedProjectLayer()
+        {
+            string response = string.Empty;
+            string dataQuery = @"SELECT jsonb_build_object(
+	                                'type',     'FeatureCollection',
+	                                'features', jsonb_agg(feature)
+                                )
+                                FROM (
+                                  SELECT jsonb_build_object(
+	                                'type', 'Feature',                                    
+	                                'geometry', ST_AsGeoJSON((shape), 15, 0)::jsonb,
+	                                'properties', to_jsonb(row) - 'shape'
+                                  ) AS feature 
+                                FROM 
+(" + Environment.NewLine + GenerateMapViewColumns("map_lged_project") + Environment.NewLine + ") row) features;";
+
+            try
+            {
+                using DbCommand command = db.Database.GetDbConnection().CreateCommand();
+                command.CommandText = dataQuery;
+                db.Database.OpenConnection();
+                using DbDataReader result = command.ExecuteReader();
+
+                while (result.Read())
+                {
+                    response = result[0].ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                response = ex.Message;
+            }
+
+            return response;
+        }
+
+        public string GenerateMapViewColumns(string table_name)
+        {
+            string response = string.Empty;
+            string dataQuery = @"SELECT column_name, alias_name, view_serial
+                                FROM public.tbl_map_view_config
+                                WHERE table_name = '" + table_name + @"'
+                                ORDER BY view_serial ASC;";
+
+            try
+            {
+                using DbCommand command = db.Database.GetDbConnection().CreateCommand();
+                command.CommandText = dataQuery;
+                db.Database.OpenConnection();
+                using DbDataReader result = command.ExecuteReader();
+
+                if (result.HasRows)
+                {
+                    response = "SELECT " + Environment.NewLine;
+                    while (result.Read())
+                    {
+                        response += "t." + result[0].ToString() + " AS \"" + result[2].ToString() + ". " + result[1].ToString() + "\", " + Environment.NewLine;
+                    }
+                    response += "t.shape " + Environment.NewLine;
+                    response += "FROM public." + table_name + " t";
                 }
             }
             catch (Exception ex)
