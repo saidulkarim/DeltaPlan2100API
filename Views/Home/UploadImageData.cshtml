@@ -1,0 +1,51 @@
+﻿@model DeltaPlan2100API.Models.TempModels.TblAppImageDataTemp
+
+@{
+    ViewData["Title"] = "Upload Image Data";
+}
+
+<h1>Upload Image Data</h1>
+<hr />
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="text-success">@ViewBag.Result</div>
+        <hr />
+
+        <form method="post" asp-controller="Home" asp-action="UploadImageData" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="MenuId" class="control-label"></label>
+                <input asp-for="MenuId" class="form-control" />
+                <span asp-validation-for="MenuId" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="MenuLevel" class="control-label"></label>
+                <input asp-for="MenuLevel" class="form-control" />
+                <span asp-validation-for="MenuLevel" class="text-danger"></span>
+            </div>
+
+            @*<div class="form-group">
+                    <label asp-for="ImageTitle" class="control-label"></label>
+                    <input asp-for="ImageTitle" class="form-control" />
+                    <span asp-validation-for="ImageTitle" class="text-danger"></span>
+                </div>*@
+
+            <div class="form-group">
+                <label asp-for="Image" class="control-label"></label>
+                <input type="file" asp-for="Image" class="form-control" />
+                <span asp-validation-for="Image" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Submit" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+

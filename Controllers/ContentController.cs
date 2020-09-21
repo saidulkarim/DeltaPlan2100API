@@ -86,11 +86,17 @@ namespace DeltaPlan2100API.Controllers
 
             try
             {
-                lstYear = db.TblIndicatorFyData
-                            .Select(s => s.FiscalYear.ToString())
-                            .Distinct()
-                            .OrderBy(o => o)
-                            .ToList();
+                string dataQuery = @"SELECT DISTINCT fiscal_year FROM public.tbl_indicator_fy_data ORDER BY fiscal_year;";
+
+                using DbCommand command = db.Database.GetDbConnection().CreateCommand();
+                command.CommandText = dataQuery;
+                db.Database.OpenConnection();
+
+                using DbDataReader result = command.ExecuteReader();
+                while (result.Read())
+                {
+                    lstYear.Add(result[0].ToString());
+                }
             }
             catch (Exception ex)
             {
@@ -102,15 +108,15 @@ namespace DeltaPlan2100API.Controllers
 
         // GET: api/Content/MacroEconIndicatorPivotData/ICOR
         [Obsolete]
-        [HttpGet("{indicator_name}", Name = "MacroEconIndicatorPivotData")]
-        public List<MacroEconIndicatorsPivotList> MacroEconIndicatorPivotData(string indicator_name)
+        [HttpGet("{parent_id}/{indicator_name}", Name = "MacroEconIndicatorPivotData")]
+        public List<MacroEconIndicatorsPivotList> MacroEconIndicatorPivotData(int parent_id, string indicator_name)
         {
             List<MacroEconIndicatorsPivotList> lstMEIPL = new List<MacroEconIndicatorsPivotList>();
 
             string dataQuery = @"SELECT 
 	                                indicator_name,
 	                                CASE WHEN indicator_type = 1 THEN 'BAU' ELSE 'BDP' END indicator_type,
-                                    fy_value_unit,
+                                    fy_value_unit, visual_unit, 
 	                                MAX(fy_value) FILTER (WHERE fiscal_year = 2016) AS FY2016,
                                     MAX(fy_value) FILTER (WHERE fiscal_year = 2020) AS FY2020,
 	                                MAX(fy_value) FILTER (WHERE fiscal_year = 2021) AS FY2021,
@@ -127,10 +133,10 @@ namespace DeltaPlan2100API.Controllers
 
             if (!string.IsNullOrEmpty(indicator_name))
             {
-                dataQuery += " AND indicator_name = '" + indicator_name + "'";
+                dataQuery += " AND parent_id = " + parent_id + " AND indicator_name = '" + indicator_name + "'";
             }
 
-            dataQuery += @" GROUP BY indicator_name, indicator_type, fy_value_unit
+            dataQuery += @" GROUP BY indicator_name, indicator_type, fy_value_unit, visual_unit
                             ORDER BY indicator_name, indicator_type;";
 
             try
@@ -147,17 +153,18 @@ namespace DeltaPlan2100API.Controllers
                         indicator_name = result[0].ToString(),
                         indicator_type = result[1].ToString(),
                         fy_value_unit = result[2].ToString(),
-                        FY2016 = result[3].ToString().ToDecimal(),
-                        FY2020 = result[4].ToString().ToDecimal(),
-                        FY2021 = result[5].ToString().ToDecimal(),
-                        FY2025 = result[6].ToString().ToDecimal(),
-                        FY2026 = result[7].ToString().ToDecimal(),
-                        FY2030 = result[8].ToString().ToDecimal(),
-                        FY2031 = result[9].ToString().ToDecimal(),
-                        FY2035 = result[10].ToString().ToDecimal(),
-                        FY2036 = result[11].ToString().ToDecimal(),
-                        FY2040 = result[12].ToString().ToDecimal(),
-                        FY2041 = result[13].ToString().ToDecimal()
+                        visual_unit = result[3].ToString(),
+                        FY2016 = result[4].ToString().ToDecimal(),
+                        FY2020 = result[5].ToString().ToDecimal(),
+                        FY2021 = result[6].ToString().ToDecimal(),
+                        FY2025 = result[7].ToString().ToDecimal(),
+                        FY2026 = result[8].ToString().ToDecimal(),
+                        FY2030 = result[9].ToString().ToDecimal(),
+                        FY2031 = result[10].ToString().ToDecimal(),
+                        FY2035 = result[11].ToString().ToDecimal(),
+                        FY2036 = result[12].ToString().ToDecimal(),
+                        FY2040 = result[13].ToString().ToDecimal(),
+                        FY2041 = result[14].ToString().ToDecimal()
                     };
 
                     lstMEIPL.Add(_mei);
@@ -179,7 +186,111 @@ namespace DeltaPlan2100API.Controllers
             return lstMEIPL;
         }
 
-        // GET: api/Content/InvestmentProjectHotspotList        
+        // 30-Apr-2020
+        // GET: api/Content/ClimateScenarioSubItemList
+        [Obsolete]
+        [HttpGet(Name = "ClimateScenarioSubItemList")]
+        public List<ClimateScenarioSubItemList> ClimateScenarioSubItemList()
+        {
+            List<ClimateScenarioSubItemList> lstCSSL = new List<ClimateScenarioSubItemList>();
+
+            string dataQuery = @"SELECT scenario_subitem_id, scenario_subitem_name, 
+                                scenario_subitem_unit, scenario_subitem_description
+                                FROM public.tbl_climate_scenario_subitem
+                                ORDER BY scenario_subitem_id ASC;";
+
+            try
+            {
+                using DbCommand command = db.Database.GetDbConnection().CreateCommand();
+                command.CommandText = dataQuery;
+                db.Database.OpenConnection();
+
+                using DbDataReader result = command.ExecuteReader();
+                while (result.Read())
+                {
+                    ClimateScenarioSubItemList _mei = new ClimateScenarioSubItemList
+                    {
+                        subitem_id = result[0].ToString().ToInt(),
+                        subitem_name = result[1].ToString(),
+                        subitem_unit = result[2].ToString(),
+                        subitem_description = result[3].ToString()
+                    };
+
+                    lstCSSL.Add(_mei);
+                }
+            }
+            catch (Exception ex)
+            {
+                lstCSSL = new List<ClimateScenarioSubItemList>();
+
+                ClimateScenarioSubItemList _mei_ex = new ClimateScenarioSubItemList
+                {
+                    error_status = "error_occured",
+                    error_msg = ex.Message
+                };
+
+                lstCSSL.Add(_mei_ex);
+            }
+
+            return lstCSSL;
+        }
+
+        // 29-Apr-2020
+        // GET: api/Content/ClimateChangePivotData/1
+        [Obsolete]
+        [HttpGet("{subitem_id}", Name = "ClimateChangePivotData")]
+        public List<ClimateChangePivotList> ClimateChangePivotData(int subitem_id)
+        {
+            List<ClimateChangePivotList> lstCCPL = new List<ClimateChangePivotList>();
+
+            string dataQuery = @"SELECT * 
+                                FROM crosstab('SELECT scenario_data_year, scenario_scale_id, SUM(scenario_data_value)
+                                FROM public.tbl_climate_scenario_yearwise_detail
+                                WHERE scenario_subitem_id = " + subitem_id + @"
+                                GROUP BY scenario_scale_id, scenario_data_year
+                                ORDER BY scenario_data_year ASC, scenario_scale_id ASC') 
+                                AS final_result(scenario_data_year integer, ""moderate"" NUMERIC, ""productive"" NUMERIC, 
+                                ""active"" NUMERIC, ""resilient"" NUMERIC);";
+
+            try
+            {
+                using DbCommand command = db.Database.GetDbConnection().CreateCommand();
+                command.CommandText = dataQuery;
+                db.Database.OpenConnection();
+
+                using DbDataReader result = command.ExecuteReader();
+                while (result.Read())
+                {
+                    ClimateChangePivotList _mei = new ClimateChangePivotList
+                    {
+                        scenario_data_year = result[0].ToString().ToInt(),
+                        moderate = result[1].ToString().ToDecimal(),
+                        productive = result[2].ToString().ToDecimal(),
+                        active = result[3].ToString().ToDecimal(),
+                        resilient = result[4].ToString().ToDecimal()
+                    };
+
+                    lstCCPL.Add(_mei);
+                }
+            }
+            catch (Exception ex)
+            {
+                lstCCPL = new List<ClimateChangePivotList>();
+
+                ClimateChangePivotList _mei_ex = new ClimateChangePivotList
+                {
+                    error_status = "error_occured",
+                    error_msg = ex.Message
+                };
+
+                lstCCPL.Add(_mei_ex);
+            }
+
+            return lstCCPL;
+        }
+
+        // GET: api/Content/InvestmentProjectHotspotList
+        [HttpGet(Name = "InvestmentProjectHotspotList")]
         public List<InvestmentProjectList> InvestmentProjectHotspotList()
         {
             List<InvestmentProjectList> lstHotSpot = new List<InvestmentProjectList>();
@@ -432,6 +543,29 @@ namespace DeltaPlan2100API.Controllers
             }
 
             return response;
+        }
+
+        // GET: api/Content/GetImageData/
+        [HttpGet("{menuid}/{menulevel}", Name = "GetImageData")]
+        public string GetImageData(int menuid, int menulevel)
+        {
+            string result = string.Empty;
+
+            try
+            {
+                byte[] data = db.TblAppImageData
+                            .Where(w => w.MenuId == menuid && w.MenuLevel == menulevel)
+                            .Select(s => s.ImageBlob)
+                            .FirstOrDefault();
+
+                result = Convert.ToBase64String(data);
+            }
+            catch (Exception)
+            {
+                result = string.Empty;
+            }
+
+            return result;
         }
 
         #region Send Feedback

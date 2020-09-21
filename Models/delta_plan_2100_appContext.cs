@@ -33,19 +33,23 @@ namespace DeltaPlan2100API.Models
         public virtual DbSet<TblUserComments> TblUserComments { get; set; }
         public virtual DbSet<Topology> Topology { get; set; }
         public virtual DbSet<Upazilla> Upazilla { get; set; }
+        public virtual DbSet<TblAppImageData> TblAppImageData { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseNpgsql("server=127.0.0.1;Port=5432;database=delta_plan_2100_app;User ID=postgres;password=cegis;");
+                //optionsBuilder.UseNpgsql("server=127.0.0.1;Port=5432;database=delta_plan_2100_app;User ID=postgres;password=cegis;"); //local db server
+                optionsBuilder.UseNpgsql("server=202.53.173.179;Port=5436;database=delta2100app_db;User ID=postgres;password=Cegis@2020;"); // live server
+
             }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasPostgresExtension("postgis")
-                .HasPostgresExtension("postgis_topology");
+                .HasPostgresExtension("postgis_topology")
+                .HasPostgresExtension("tablefunc");
 
             modelBuilder.Entity<District>(entity =>
             {
@@ -765,6 +769,28 @@ namespace DeltaPlan2100API.Models
                 entity.Property(e => e.UpazillaName)
                     .HasColumnName("upazilla_name")
                     .HasMaxLength(250);
+            });
+
+            modelBuilder.Entity<TblAppImageData>(entity =>
+            {
+                entity.HasKey(e => e.ImageDataId)
+                    .HasName("tbl_app_image_data_pkey");
+
+                entity.ToTable("tbl_app_image_data");
+
+                entity.Property(e => e.ImageDataId)
+                    .HasColumnName("image_data_id")
+                    .ValueGeneratedNever();
+
+                entity.Property(e => e.ImageBlob).HasColumnName("image_blob");
+
+                //entity.Property(e => e.ImageTitle)
+                //    .HasColumnName("image_title")
+                //    .HasColumnType("character varying");
+
+                entity.Property(e => e.MenuId).HasColumnName("menu_id");
+
+                entity.Property(e => e.MenuLevel).HasColumnName("menu_level");
             });
 
             modelBuilder.HasSequence("district_district_id_seq");
